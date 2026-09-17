@@ -1,95 +1,20 @@
 package ru.mipt.bit.platformer;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.game.TankGame;
 
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+public final class GameDesktopLauncher {
 
-// вынести логику обработки кнопок, логику отрисовки в отдельный класс
-public class GameDesktopLauncher implements ApplicationListener {
+    private static final int WINDOW_WIDTH = 1280;
+    private static final int WINDOW_HEIGHT = 1024;
 
-    private Batch batch;
-    private Field field;
-    private Tank tank;
-
-    @Override
-    public void create() {
-        batch = new SpriteBatch();
-        field = new Field(batch);
-        tank = new Tank("images/tank_blue.png", new GridPoint2(1, 1));
-    }
-
-    @Override
-    public void render() {
-        // clear the screen
-        Gdx.gl.glClearColor(0f, 0f, 0.2f, 1f);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-
-        // get time passed since the last render
-        float deltaTime = Gdx.graphics.getDeltaTime();
-
-        if (!tank.isMoving()) {
-            handleMovementInput();
-        }
-
-        tank.update(deltaTime, field);
-
-        // render each tile of the level
-        field.renderMap();
-
-        // start recording all drawing commands
-        batch.begin();
-
-        tank.render(batch);
-        field.renderObjects(batch);
-
-        // submit all drawing requests
-        batch.end();
-    }
-
-    private void handleMovementInput() {
-        for (Direction direction : Direction.values()) {
-            if (!direction.isPressed()) {
-                continue;
-            }
-
-            tank.tryMove(direction, field);
-            return;
-        }
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        // do not react to window resizing
-    }
-
-    @Override
-    public void pause() {
-        // game doesn't get paused
-    }
-
-    @Override
-    public void resume() {
-        // game doesn't get paused
-    }
-
-    @Override
-    public void dispose() {
-        // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        tank.dispose();
-        field.dispose();
-        batch.dispose();
+    private GameDesktopLauncher() {
     }
 
     public static void main(String[] args) {
-        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        // level width: 10 tiles x 128px, height: 8 tiles x 128px
-        config.setWindowedMode(1280, 1024);
-        new Lwjgl3Application(new GameDesktopLauncher(), config);
+        Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
+        configuration.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+        new Lwjgl3Application(new TankGame(), configuration);
     }
 }
