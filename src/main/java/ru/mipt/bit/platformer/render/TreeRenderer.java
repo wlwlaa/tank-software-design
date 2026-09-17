@@ -1,40 +1,34 @@
-package ru.mipt.bit.platformer;
+package ru.mipt.bit.platformer.render;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Rectangle;
+import ru.mipt.bit.platformer.model.Tree;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
-class Tree {
+public class TreeRenderer {
 
     private final Texture texture;
     private final TextureRegion graphics;
-    private final GridPoint2 coordinates;
     private final Rectangle rectangle;
 
-    Tree(String texturePath, GridPoint2 coordinates, TiledMapTileLayer groundLayer) {
+    public TreeRenderer(String texturePath) {
         texture = new Texture(texturePath);
         graphics = new TextureRegion(texture);
-        this.coordinates = new GridPoint2(coordinates);
         rectangle = createBoundingRectangle(graphics);
-        moveRectangleAtTileCenter(groundLayer, rectangle, this.coordinates);
     }
 
-    boolean occupies(GridPoint2 coordinates) {
-        return this.coordinates.equals(coordinates);
-    }
-
-    void render(Batch batch) {
+    public void render(Batch batch, Tree tree, TiledMapTileLayer groundLayer) {
+        moveRectangleAtTileCenter(groundLayer, rectangle, tree.getCoordinates());
         drawTextureRegionUnscaled(batch, graphics, rectangle, 0f);
     }
 
-    void dispose() {
+    public void dispose() {
         texture.dispose();
     }
 }
