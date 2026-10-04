@@ -1,31 +1,24 @@
 package ru.mipt.bit.platformer.input;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.GridPoint2;
-import org.junit.After;
 import org.junit.Test;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.Field;
+import ru.mipt.bit.platformer.model.MovementTarget;
 import ru.mipt.bit.platformer.model.Tank;
 
-import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class MovementInputActionTest {
 
-    private final Input originalInput = Gdx.input;
-
-    @After
-    public void restoreInput() {
-        Gdx.input = originalInput;
-    }
-
     @Test
-    public void mapsArrowAndLetterKeysToDirections() {
+    public void supportsArrowAndLetterBindings() {
         int[] keys = {Keys.UP, Keys.W, Keys.LEFT, Keys.A, Keys.DOWN, Keys.S, Keys.RIGHT, Keys.D};
         Direction[] directions = {
                 Direction.UP, Direction.UP,
@@ -33,12 +26,9 @@ public class MovementInputActionTest {
                 Direction.DOWN, Direction.DOWN,
                 Direction.RIGHT, Direction.RIGHT
         };
-
         for (int index = 0; index < keys.length; index++) {
             Tank tank = createTank();
-            Gdx.input = inputWithPressedKey(keys[index]);
-
-            new MovementInputAction(tank, emptyField()).handle();
+            action(tank, pressedKeys(keys[index])).handle();
 
             assertEquals(directions[index], tank.getDirection());
             assertEquals(directions[index].move(new GridPoint2(2, 2)), tank.getDestinationCoordinates());
@@ -48,11 +38,9 @@ public class MovementInputActionTest {
     @Test
     public void ignoresDirectionChangesWhileTankIsMoving() {
         Tank tank = createTank();
-        Field field = emptyField();
-        tank.tryMove(Direction.UP, field);
-        Gdx.input = inputWithPressedKey(Keys.LEFT);
+        tank.tryMove(Direction.UP);
 
-        new MovementInputAction(tank, field).handle();
+        action(tank, pressedKeys(Keys.LEFT)).handle();
 
         assertEquals(Direction.UP, tank.getDirection());
         assertEquals(new GridPoint2(2, 3), tank.getDestinationCoordinates());
@@ -61,67 +49,68 @@ public class MovementInputActionTest {
     @Test
     public void doesNothingWhenNoMovementKeyIsPressed() {
         Tank tank = createTank();
-        Gdx.input = inputWithPressedKey(-1);
 
-        new MovementInputAction(tank, emptyField()).handle();
+        action(tank, pressedKeys()).handle();
 
         assertEquals(new GridPoint2(2, 2), tank.getDestinationCoordinates());
     }
 
     @Test
-    public void usesFirstDirectionWhenSeveralKeysArePressed() {
+    public void usesFirstBindingWhenSeveralKeysArePressed() {
         Tank tank = createTank();
-        Gdx.input = inputWithPressedKeys(Keys.UP, Keys.RIGHT);
 
-        new MovementInputAction(tank, emptyField()).handle();
+        action(tank, pressedKeys(Keys.UP, Keys.RIGHT)).handle();
 
         assertEquals(Direction.UP, tank.getDirection());
     }
 
+    @Test
+    public void supportsCustomBindingsAndOtherMovementTargets() {
+        List<Direction> movements = new ArrayList<>();
+        MovementTarget target = new MovementTarget() {
+            @Override
+            public boolean isMoving() {
+                return false;
+            }
+
+            @Override
+            public void tryMove(Direction direction) {
+                movements.add(direction);
+            }
+        };
+        List<DirectionKeyBinding> bindings = new ArrayList<>();
+        int[] keys = {Keys.SPACE};
+        bindings.add(new DirectionKeyBinding(Direction.LEFT, keys));
+        MovementInputAction action = new MovementInputAction(target, pressedKeys(Keys.SPACE), bindings);
+        bindings.clear();
+        keys[0] = Keys.UP;
+
+        action.handle();
+
+        assertEquals(Collections.singletonList(Direction.LEFT), movements);
+    }
+
     private Tank createTank() {
-        return new Tank(new GridPoint2(2, 2));
+        return new Tank(new GridPoint2(2, 2), 0.4f, new Field(5, 5, Collections.emptyList()));
     }
 
-    private Field emptyField() {
-        return new Field(5, 5, Collections.emptyList());
+    private MovementInputAction action(Tank tank, KeyState keyState) {
+        return new MovementInputAction(tank, keyState, Arrays.asList(
+                new DirectionKeyBinding(Direction.UP, Keys.UP, Keys.W),
+                new DirectionKeyBinding(Direction.LEFT, Keys.LEFT, Keys.A),
+                new DirectionKeyBinding(Direction.DOWN, Keys.DOWN, Keys.S),
+                new DirectionKeyBinding(Direction.RIGHT, Keys.RIGHT, Keys.D)
+        ));
     }
 
-    private Input inputWithPressedKey(int pressedKey) {
-        return inputWithPressedKeys(pressedKey);
-    }
-
-    private Input inputWithPressedKeys(int... pressedKeys) {
-        return (Input) Proxy.newProxyInstance(
-                Input.class.getClassLoader(),
-                new Class<?>[]{Input.class},
-                (proxy, method, arguments) -> {
-                    if (method.getName().equals("isKeyPressed")) {
-                        int requestedKey = (Integer) arguments[0];
-                        for (int pressedKey : pressedKeys) {
-                            if (requestedKey == pressedKey) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                    return defaultValue(method.getReturnType());
+    private KeyState pressedKeys(int... keys) {
+        return requestedKey -> {
+            for (int key : keys) {
+                if (key == requestedKey) {
+                    return true;
                 }
-        );
-    }
-
-    private Object defaultValue(Class<?> type) {
-        if (type == boolean.class) {
+            }
             return false;
-        }
-        if (type == int.class) {
-            return 0;
-        }
-        if (type == long.class) {
-            return 0L;
-        }
-        if (type == float.class) {
-            return 0f;
-        }
-        return null;
+        };
     }
 }

@@ -15,6 +15,6 @@ public final class GameDesktopLauncher {
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
-        new Lwjgl3Application(new TankGame(), configuration);
+        new Lwjgl3Application(new TankGame(new DesktopGameFactory()), configuration);
     }
 }

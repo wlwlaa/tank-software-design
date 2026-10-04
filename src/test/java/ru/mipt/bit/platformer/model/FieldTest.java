@@ -37,19 +37,29 @@ public class FieldTest {
     }
 
     @Test
-    public void copiesAndProtectsTreeCollection() {
+    public void copiesAndProtectsObstacleCollection() {
         List<Tree> source = new ArrayList<>();
         source.add(new Tree(new GridPoint2(1, 1)));
         Field field = new Field(4, 3, source);
 
         source.clear();
 
-        assertEquals(1, field.getTrees().size());
+        assertEquals(1, field.getObstacles().size());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void returnedTreeCollectionCannotBeChanged() {
-        fieldWithTreeAt(1, 1).getTrees().clear();
+    public void returnedObstacleCollectionCannotBeChanged() {
+        fieldWithTreeAt(1, 1).getObstacles().clear();
+    }
+
+    @Test
+    public void supportsNewObstacleTypesWithoutChangingField() {
+        Obstacle wall = coordinates -> coordinates.x == 2;
+        Field field = new Field(4, 3, Collections.singletonList(wall));
+
+        assertFalse(field.canMoveTo(new GridPoint2(2, 0)));
+        assertFalse(field.canMoveTo(new GridPoint2(2, 2)));
+        assertTrue(field.canMoveTo(new GridPoint2(1, 2)));
     }
 
     private Field fieldWithTreeAt(int x, int y) {
