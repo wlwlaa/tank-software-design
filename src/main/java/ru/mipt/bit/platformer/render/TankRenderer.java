@@ -9,20 +9,25 @@ import ru.mipt.bit.platformer.model.Tank;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
-public class TankRenderer {
+public class TankRenderer implements SceneRenderer {
 
+    private final Tank tank;
+    private final TilePositioner tilePositioner;
     private final Texture texture;
     private final TextureRegion graphics;
     private final Rectangle rectangle;
 
-    public TankRenderer(String texturePath) {
+    public TankRenderer(String texturePath, Tank tank, TilePositioner tilePositioner) {
+        this.tank = tank;
+        this.tilePositioner = tilePositioner;
         texture = new Texture(texturePath);
         graphics = new TextureRegion(texture);
         rectangle = createBoundingRectangle(graphics);
     }
 
-    public void render(Batch batch, Tank tank, FieldRenderer fieldRenderer) {
-        fieldRenderer.moveBetweenTiles(
+    @Override
+    public void render(Batch batch) {
+        tilePositioner.moveRectangleBetweenTileCenters(
                 rectangle,
                 tank.getCoordinates(),
                 tank.getDestinationCoordinates(),
@@ -31,6 +36,7 @@ public class TankRenderer {
         drawTextureRegionUnscaled(batch, graphics, rectangle, tank.getDirection().getRotation());
     }
 
+    @Override
     public void dispose() {
         texture.dispose();
     }

@@ -6,18 +6,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Field {
+public class Field implements MovementPolicy {
 
     private final int width;
     private final int height;
-    private final List<Tree> trees;
+    private final List<Obstacle> obstacles;
 
-    public Field(int width, int height, List<Tree> trees) {
+    public Field(int width, int height, List<? extends Obstacle> obstacles) {
         this.width = width;
         this.height = height;
-        this.trees = Collections.unmodifiableList(new ArrayList<>(trees));
+        this.obstacles = Collections.unmodifiableList(new ArrayList<>(obstacles));
     }
 
+    @Override
     public boolean canMoveTo(GridPoint2 coordinates) {
         return isInside(coordinates) && !isOccupied(coordinates);
     }
@@ -30,15 +31,15 @@ public class Field {
     }
 
     private boolean isOccupied(GridPoint2 coordinates) {
-        for (Tree tree : trees) {
-            if (tree.occupies(coordinates)) {
+        for (Obstacle obstacle : obstacles) {
+            if (obstacle.occupies(coordinates)) {
                 return true;
             }
         }
         return false;
     }
 
-    public List<Tree> getTrees() {
-        return trees;
+    public List<Obstacle> getObstacles() {
+        return obstacles;
     }
 }

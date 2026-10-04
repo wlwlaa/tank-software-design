@@ -16,7 +16,7 @@ public class InputHandlerTest {
         InputAction second = calls::incrementAndGet;
         InputHandler handler = new InputHandler(Arrays.asList(first, second));
 
-        handler.handleInput();
+        handler.handle();
 
         assertEquals(2, calls.get());
     }
