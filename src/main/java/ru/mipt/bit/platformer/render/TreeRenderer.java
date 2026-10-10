@@ -6,19 +6,27 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import ru.mipt.bit.platformer.model.Tree;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
 public class TreeRenderer implements SceneRenderer {
 
-    private final Tree tree;
+    private final List<Tree> trees;
     private final TilePositioner tilePositioner;
     private final Texture texture;
     private final TextureRegion graphics;
     private final Rectangle rectangle;
 
     public TreeRenderer(String texturePath, Tree tree, TilePositioner tilePositioner) {
-        this.tree = tree;
+        this(texturePath, Collections.singletonList(tree), tilePositioner);
+    }
+
+    public TreeRenderer(String texturePath, List<Tree> trees, TilePositioner tilePositioner) {
+        this.trees = new ArrayList<>(trees);
         this.tilePositioner = tilePositioner;
         texture = new Texture(texturePath);
         graphics = new TextureRegion(texture);
@@ -27,8 +35,10 @@ public class TreeRenderer implements SceneRenderer {
 
     @Override
     public void render(Batch batch) {
-        tilePositioner.moveRectangleBetweenTileCenters(rectangle, tree.getCoordinates(), tree.getCoordinates(), 1f);
-        drawTextureRegionUnscaled(batch, graphics, rectangle, 0f);
+        for (Tree tree : trees) {
+            tilePositioner.moveRectangleBetweenTileCenters(rectangle, tree.getCoordinates(), tree.getCoordinates(), 1f);
+            drawTextureRegionUnscaled(batch, graphics, rectangle, 0f);
+        }
     }
 
     @Override
