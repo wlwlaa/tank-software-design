@@ -9,9 +9,21 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class FieldTest {
+
+    @Test
+    public void exposesDimensionsAndRejectsNonPositiveSize() {
+        Field field = fieldWithTreeAt(1, 1);
+        assertEquals(4, field.getWidth());
+        assertEquals(3, field.getHeight());
+        for (int[] size : new int[][]{{0, 1}, {1, 0}, {-1, 1}, {1, -1}}) {
+            assertThrows(IllegalArgumentException.class,
+                    () -> new Field(size[0], size[1], Collections.emptyList()));
+        }
+    }
 
     @Test
     public void permitsMovementToFreeCoordinatesInsideField() {

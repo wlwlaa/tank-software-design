@@ -5,9 +5,7 @@ import ru.mipt.bit.platformer.game.Updatable;
 
 import java.util.Objects;
 
-import static com.badlogic.gdx.math.MathUtils.isEqual;
-
-public class Tank implements MovementTarget, Updatable {
+public class Tank implements MovementTarget, Updatable, Obstacle {
 
     private final float movementDuration;
     private final MovementPolicy movementPolicy;
@@ -30,7 +28,7 @@ public class Tank implements MovementTarget, Updatable {
 
     @Override
     public boolean isMoving() {
-        return !isEqual(movementProgress, 1f);
+        return movementProgress < 1f;
     }
 
     @Override
@@ -48,10 +46,19 @@ public class Tank implements MovementTarget, Updatable {
 
     @Override
     public void update(float deltaTime) {
+        if (!Float.isFinite(deltaTime) || deltaTime < 0f) {
+            throw new IllegalArgumentException("Delta time must be finite and non-negative");
+        }
         movementProgress = Math.min(1f, Math.max(0f, movementProgress + deltaTime / movementDuration));
         if (!isMoving()) {
             coordinates.set(destinationCoordinates);
         }
+    }
+
+    @Override
+    public boolean occupies(GridPoint2 coordinates) {
+        // Keep the source reserved until the entire step is complete.
+        return this.coordinates.equals(coordinates) || destinationCoordinates.equals(coordinates);
     }
 
     public GridPoint2 getCoordinates() {

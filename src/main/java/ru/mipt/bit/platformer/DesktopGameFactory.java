@@ -8,20 +8,19 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import ru.mipt.bit.platformer.game.GameSession;
+import ru.mipt.bit.platformer.game.TankSimulation;
 import ru.mipt.bit.platformer.level.LevelDefinition;
 import ru.mipt.bit.platformer.level.LevelSource;
 import ru.mipt.bit.platformer.input.DirectionKeyBinding;
-import ru.mipt.bit.platformer.input.InputHandler;
-import ru.mipt.bit.platformer.input.MovementInputAction;
 import ru.mipt.bit.platformer.input.keyboard.GdxKeyState;
 import ru.mipt.bit.platformer.model.Direction;
-import ru.mipt.bit.platformer.model.Field;
 import ru.mipt.bit.platformer.model.Obstacle;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.model.Tree;
 import ru.mipt.bit.platformer.render.FieldRenderer;
 import ru.mipt.bit.platformer.render.GdxGameView;
 import ru.mipt.bit.platformer.render.GroundMapFactory;
+import ru.mipt.bit.platformer.render.SceneRenderer;
 import ru.mipt.bit.platformer.render.TankRenderer;
 import ru.mipt.bit.platformer.render.TilePositioner;
 import ru.mipt.bit.platformer.render.TreeRenderer;
@@ -31,15 +30,18 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.function.Supplier;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createSingleLayerMapRenderer;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
 public class DesktopGameFactory implements Supplier<GameSession> {
+
+    private static final int AI_TANK_COUNT = 3;
+    private static final float MOVEMENT_DURATION = 0.4f;
 
     private final LevelSource levelSource;
 
@@ -62,30 +64,32 @@ public class DesktopGameFactory implements Supplier<GameSession> {
             }
             trees.add((Tree) obstacle);
         }
-        Field field = new Field(definition.getWidth(), definition.getHeight(), definition.getObstacles());
-        Tank tank = new Tank(definition.getPlayerStart(), 0.4f, field);
-        Batch batch = new SpriteBatch();
-        TiledMap level = new GroundMapFactory().create(definition.getWidth(), definition.getHeight());
-        TiledMapTileLayer groundLayer = getSingleLayer(level);
-        TilePositioner tilePositioner = new TileMovement(groundLayer, Interpolation.smooth);
-        MovementInputAction movementInput = new MovementInputAction(
-                tank,
+        TankSimulation simulation = new TankSimulation(
+                definition, AI_TANK_COUNT, MOVEMENT_DURATION,
                 new GdxKeyState(Gdx.input),
                 Arrays.asList(
                         new DirectionKeyBinding(Direction.UP, Keys.UP, Keys.W),
                         new DirectionKeyBinding(Direction.LEFT, Keys.LEFT, Keys.A),
                         new DirectionKeyBinding(Direction.DOWN, Keys.DOWN, Keys.S),
                         new DirectionKeyBinding(Direction.RIGHT, Keys.RIGHT, Keys.D)
-                )
+                ),
+                new Random()
         );
+        Batch batch = new SpriteBatch();
+        TiledMap level = new GroundMapFactory().create(definition.getWidth(), definition.getHeight());
+        TiledMapTileLayer groundLayer = getSingleLayer(level);
+        TilePositioner tilePositioner = new TileMovement(groundLayer, Interpolation.smooth);
+        List<SceneRenderer> renderers = new ArrayList<>();
+        renderers.add(new TankRenderer("images/tank_blue.png", simulation.getPlayerTank(), tilePositioner));
+        for (Tank tank : simulation.getAiTanks()) {
+            renderers.add(new TankRenderer("images/tank_blue.png", tank, tilePositioner));
+        }
+        renderers.add(new TreeRenderer("images/greenTree.png", trees, tilePositioner));
         GdxGameView view = new GdxGameView(
                 batch,
                 new FieldRenderer(level, createSingleLayerMapRenderer(level, batch)),
-                Arrays.asList(
-                        new TankRenderer("images/tank_blue.png", tank, tilePositioner),
-                        new TreeRenderer("images/greenTree.png", trees, tilePositioner)
-                )
+                renderers
         );
-        return new GameSession(new InputHandler(Collections.singletonList(movementInput)), tank, view);
+        return new GameSession(simulation, simulation, view);
     }
 }
