@@ -8,6 +8,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class TankTest {
@@ -85,6 +86,23 @@ public class TankTest {
         assertEquals(Direction.RIGHT, tank.getDirection());
         assertEquals(0.5f, tank.getMovementProgress(), 0.0001f);
         assertEquals(new GridPoint2(2, 1), tank.getDestinationCoordinates());
+    }
+
+    @Test
+    public void invalidTimeCannotRewindMovementOrReleaseReservedCells() {
+        tank.tryMove(Direction.RIGHT);
+        tank.update(0.2f);
+
+        for (float delta : new float[]{-0.1f, Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY}) {
+            assertThrows(IllegalArgumentException.class, () -> tank.update(delta));
+            assertTrue(tank.isMoving());
+            assertEquals(0.5f, tank.getMovementProgress(), 0f);
+            assertTrue(tank.occupies(new GridPoint2(1, 1)));
+            assertTrue(tank.occupies(new GridPoint2(2, 1)));
+        }
+
+        tank.update(0f);
+        assertEquals(0.5f, tank.getMovementProgress(), 0f);
     }
 
     @Test(expected = IllegalArgumentException.class)

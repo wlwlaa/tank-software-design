@@ -13,6 +13,9 @@ public class Field implements MovementPolicy {
     private final List<Obstacle> obstacles;
 
     public Field(int width, int height, List<? extends Obstacle> obstacles) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Field width and height must be positive");
+        }
         this.width = width;
         this.height = height;
         this.obstacles = Collections.unmodifiableList(new ArrayList<>(obstacles));
@@ -41,5 +44,13 @@ public class Field implements MovementPolicy {
 
     public List<Obstacle> getObstacles() {
         return obstacles;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
