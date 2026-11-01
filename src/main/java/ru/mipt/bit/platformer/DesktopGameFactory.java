@@ -9,28 +9,28 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import ru.mipt.bit.platformer.game.GameSession;
 import ru.mipt.bit.platformer.game.TankSimulation;
-import ru.mipt.bit.platformer.level.LevelDefinition;
-import ru.mipt.bit.platformer.level.LevelSource;
 import ru.mipt.bit.platformer.input.DirectionKeyBinding;
 import ru.mipt.bit.platformer.input.keyboard.GdxKeyState;
+import ru.mipt.bit.platformer.level.LevelDefinition;
+import ru.mipt.bit.platformer.level.LevelSource;
+import ru.mipt.bit.platformer.model.Bullet;
 import ru.mipt.bit.platformer.model.Direction;
-import ru.mipt.bit.platformer.model.Obstacle;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.model.Tree;
+import ru.mipt.bit.platformer.render.BulletRenderer;
 import ru.mipt.bit.platformer.render.FieldRenderer;
 import ru.mipt.bit.platformer.render.GdxGameView;
 import ru.mipt.bit.platformer.render.GroundMapFactory;
-import ru.mipt.bit.platformer.render.SceneRenderer;
 import ru.mipt.bit.platformer.render.TankRenderer;
 import ru.mipt.bit.platformer.render.TilePositioner;
 import ru.mipt.bit.platformer.render.TreeRenderer;
+import ru.mipt.bit.platformer.render.WorldSceneRenderer;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -57,13 +57,6 @@ public class DesktopGameFactory implements Supplier<GameSession> {
         } catch (IOException exception) {
             throw new UncheckedIOException("Could not read level", exception);
         }
-        List<Tree> trees = new ArrayList<>();
-        for (Obstacle obstacle : definition.getObstacles()) {
-            if (!(obstacle instanceof Tree)) {
-                throw new IllegalArgumentException("No renderer configured for " + obstacle.getClass().getName());
-            }
-            trees.add((Tree) obstacle);
-        }
         TankSimulation simulation = new TankSimulation(
                 definition, AI_TANK_COUNT, MOVEMENT_DURATION,
                 new GdxKeyState(Gdx.input),
@@ -73,22 +66,28 @@ public class DesktopGameFactory implements Supplier<GameSession> {
                         new DirectionKeyBinding(Direction.DOWN, Keys.DOWN, Keys.S),
                         new DirectionKeyBinding(Direction.RIGHT, Keys.RIGHT, Keys.D)
                 ),
-                new Random()
+                Keys.SPACE, new Random()
         );
         Batch batch = new SpriteBatch();
         TiledMap level = new GroundMapFactory().create(definition.getWidth(), definition.getHeight());
         TiledMapTileLayer groundLayer = getSingleLayer(level);
         TilePositioner tilePositioner = new TileMovement(groundLayer, Interpolation.smooth);
-        List<SceneRenderer> renderers = new ArrayList<>();
-        renderers.add(new TankRenderer("images/tank_blue.png", simulation.getPlayerTank(), tilePositioner));
-        for (Tank tank : simulation.getAiTanks()) {
-            renderers.add(new TankRenderer("images/tank_blue.png", tank, tilePositioner));
-        }
-        renderers.add(new TreeRenderer("images/greenTree.png", trees, tilePositioner));
+        WorldSceneRenderer scene = new WorldSceneRenderer(simulation.getWorld(), object -> {
+            if (object instanceof Tank) {
+                return new TankRenderer("images/tank_blue.png", (Tank) object, tilePositioner);
+            }
+            if (object instanceof Tree) {
+                return new TreeRenderer("images/greenTree.png", (Tree) object, tilePositioner);
+            }
+            if (object instanceof Bullet) {
+                return new BulletRenderer((Bullet) object, tilePositioner);
+            }
+            throw new IllegalArgumentException("No renderer configured for " + object.getClass().getName());
+        });
         GdxGameView view = new GdxGameView(
                 batch,
                 new FieldRenderer(level, createSingleLayerMapRenderer(level, batch)),
-                renderers
+                Collections.singletonList(scene)
         );
         return new GameSession(simulation, simulation, view);
     }

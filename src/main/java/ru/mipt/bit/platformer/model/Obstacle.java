@@ -1,8 +1,5 @@
 package ru.mipt.bit.platformer.model;
 
-import com.badlogic.gdx.math.GridPoint2;
-
-public interface Obstacle {
-
-    boolean occupies(GridPoint2 coordinates);
+/** A level object that blocks tank movement. Bullets are not obstacles. */
+public interface Obstacle extends LevelObject {
 }

@@ -4,6 +4,7 @@ import ru.mipt.bit.platformer.input.InputAction;
 import ru.mipt.bit.platformer.model.MovementTarget;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class TankController implements InputAction {
 
@@ -17,8 +18,15 @@ public class TankController implements InputAction {
 
     @Override
     public void handle() {
-        if (!target.isMoving()) {
-            strategy.nextCommand(target).ifPresent(Command::execute);
+        nextCommand().ifPresent(Command::execute);
+    }
+
+    public Optional<Command> nextCommand() {
+        if (!target.isActive()) {
+            return Optional.empty();
         }
+        return target.isMoving()
+                ? strategy.nextCommandWhileMoving(target)
+                : strategy.nextCommand(target);
     }
 }

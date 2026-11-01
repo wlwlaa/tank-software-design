@@ -26,7 +26,7 @@ public class Field implements MovementPolicy {
         return isInside(coordinates) && !isOccupied(coordinates);
     }
 
-    private boolean isInside(GridPoint2 coordinates) {
+    public boolean isInside(GridPoint2 coordinates) {
         return coordinates.x >= 0
                 && coordinates.x < width
                 && coordinates.y >= 0
