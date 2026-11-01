@@ -1,11 +1,11 @@
 package ru.mipt.bit.platformer.game;
 
+import ru.mipt.bit.platformer.control.Command;
 import ru.mipt.bit.platformer.control.KeyboardMovementStrategy;
 import ru.mipt.bit.platformer.control.RandomMovementStrategy;
 import ru.mipt.bit.platformer.control.TankController;
 import ru.mipt.bit.platformer.input.DirectionKeyBinding;
 import ru.mipt.bit.platformer.input.InputAction;
-import ru.mipt.bit.platformer.input.InputHandler;
 import ru.mipt.bit.platformer.input.KeyState;
 import ru.mipt.bit.platformer.level.LevelDefinition;
 import ru.mipt.bit.platformer.level.RandomTankGenerator;
@@ -23,25 +23,34 @@ public final class TankSimulation implements InputAction, Updatable {
     private final TankWorld world;
     private final Tank playerTank;
     private final List<Tank> aiTanks;
-    private final InputAction controllers;
+    private final List<TankController> controllers = new ArrayList<>();
 
     public TankSimulation(LevelDefinition level, int aiTankCount, float movementDuration,
                           KeyState keyState, List<DirectionKeyBinding> bindings, Random random) {
+        this(level, aiTankCount, movementDuration, keyState, bindings, null, random);
+    }
+
+    public TankSimulation(LevelDefinition level, int aiTankCount, float movementDuration,
+                          KeyState keyState, List<DirectionKeyBinding> bindings, Integer shootKey, Random random) {
         world = new TankWorld(new Field(level.getWidth(), level.getHeight(), level.getObstacles()));
         playerTank = world.addTank(level.getPlayerStart(), movementDuration);
         aiTanks = new RandomTankGenerator(random).generate(world, aiTankCount, movementDuration);
 
-        List<InputAction> actions = new ArrayList<>();
-        actions.add(new TankController(playerTank, new KeyboardMovementStrategy(keyState, bindings)));
+        controllers.add(new TankController(playerTank, new KeyboardMovementStrategy(keyState, bindings, shootKey)));
         for (Tank tank : aiTanks) {
-            actions.add(new TankController(tank, new RandomMovementStrategy(random)));
+            controllers.add(new TankController(tank, new RandomMovementStrategy(random)));
         }
-        controllers = new InputHandler(actions);
     }
 
     @Override
     public void handle() {
-        controllers.handle();
+        List<Command> commands = new ArrayList<>();
+        for (TankController controller : controllers) {
+            controller.nextCommand().ifPresent(commands::add);
+        }
+        for (Command command : commands) {
+            command.execute();
+        }
     }
 
     @Override
