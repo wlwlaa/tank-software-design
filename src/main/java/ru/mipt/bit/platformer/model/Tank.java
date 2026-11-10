@@ -15,6 +15,7 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
     private final Consumer<Tank> shootAction;
     private final Consumer<Tank> destroyAction;
     private final float shotInterval;
+    private final int maxHealth;
 
     private final GridPoint2 coordinates;
     private final GridPoint2 destinationCoordinates;
@@ -44,6 +45,7 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
         this.shootAction = Objects.requireNonNull(shootAction);
         this.destroyAction = Objects.requireNonNull(destroyAction);
         this.health = health;
+        this.maxHealth = health;
         this.shotInterval = shotInterval;
         coordinates = new GridPoint2(initialCoordinates);
         destinationCoordinates = new GridPoint2(initialCoordinates);
@@ -122,6 +124,10 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
 
     public int getHealth() {
         return health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     public GridPoint2 getCoordinates() {
