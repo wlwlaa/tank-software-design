@@ -7,9 +7,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
+import ru.mipt.bit.platformer.control.ToggleHealthBarsCommand;
 import ru.mipt.bit.platformer.game.GameSession;
 import ru.mipt.bit.platformer.game.TankSimulation;
 import ru.mipt.bit.platformer.input.DirectionKeyBinding;
+import ru.mipt.bit.platformer.input.InputHandler;
+import ru.mipt.bit.platformer.input.KeyPressCommandInputAction;
+import ru.mipt.bit.platformer.input.KeyState;
 import ru.mipt.bit.platformer.input.keyboard.GdxKeyState;
 import ru.mipt.bit.platformer.level.LevelDefinition;
 import ru.mipt.bit.platformer.level.LevelSource;
@@ -21,6 +25,8 @@ import ru.mipt.bit.platformer.render.BulletRenderer;
 import ru.mipt.bit.platformer.render.FieldRenderer;
 import ru.mipt.bit.platformer.render.GdxGameView;
 import ru.mipt.bit.platformer.render.GroundMapFactory;
+import ru.mipt.bit.platformer.render.HealthBarRenderer;
+import ru.mipt.bit.platformer.render.HealthBarVisibility;
 import ru.mipt.bit.platformer.render.TankRenderer;
 import ru.mipt.bit.platformer.render.TilePositioner;
 import ru.mipt.bit.platformer.render.TreeRenderer;
@@ -57,9 +63,11 @@ public class DesktopGameFactory implements Supplier<GameSession> {
         } catch (IOException exception) {
             throw new UncheckedIOException("Could not read level", exception);
         }
+        KeyState keyState = new GdxKeyState(Gdx.input);
+        HealthBarVisibility healthBars = new HealthBarVisibility();
         TankSimulation simulation = new TankSimulation(
                 definition, AI_TANK_COUNT, MOVEMENT_DURATION,
-                new GdxKeyState(Gdx.input),
+                keyState,
                 Arrays.asList(
                         new DirectionKeyBinding(Direction.UP, Keys.UP, Keys.W),
                         new DirectionKeyBinding(Direction.LEFT, Keys.LEFT, Keys.A),
@@ -74,7 +82,9 @@ public class DesktopGameFactory implements Supplier<GameSession> {
         TilePositioner tilePositioner = new TileMovement(groundLayer, Interpolation.smooth);
         WorldSceneRenderer scene = new WorldSceneRenderer(simulation.getWorld(), object -> {
             if (object instanceof Tank) {
-                return new TankRenderer("images/tank_blue.png", (Tank) object, tilePositioner);
+                return new HealthBarRenderer(
+                        new TankRenderer("images/tank_blue.png", (Tank) object, tilePositioner),
+                        (Tank) object, tilePositioner, healthBars::isVisible);
             }
             if (object instanceof Tree) {
                 return new TreeRenderer("images/greenTree.png", (Tree) object, tilePositioner);
@@ -89,6 +99,10 @@ public class DesktopGameFactory implements Supplier<GameSession> {
                 new FieldRenderer(level, createSingleLayerMapRenderer(level, batch)),
                 Collections.singletonList(scene)
         );
-        return new GameSession(simulation, simulation, view);
+        InputHandler input = new InputHandler(Arrays.asList(
+                new KeyPressCommandInputAction(keyState, Keys.L, new ToggleHealthBarsCommand(healthBars)),
+                simulation
+        ));
+        return new GameSession(input, simulation, view);
     }
 }
