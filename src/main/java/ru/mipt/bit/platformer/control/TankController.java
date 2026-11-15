@@ -6,6 +6,10 @@ import ru.mipt.bit.platformer.model.MovementTarget;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Application: control use case selecting and executing commands for an active domain target.
+ * Implements the InputAction phase contract; a port implementation is not necessarily an adapter.
+ */
 public class TankController implements InputAction {
 
     private final MovementTarget target;

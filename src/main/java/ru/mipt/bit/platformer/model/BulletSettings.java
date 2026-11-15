@@ -1,5 +1,9 @@
 package ru.mipt.bit.platformer.model;
 
+/**
+ * Domain: immutable value object holding projectile damage and movement duration.
+ * Not a port or adapter.
+ */
 public final class BulletSettings {
 
     public static final BulletSettings DEFAULT = new BulletSettings(25, 0.1f);

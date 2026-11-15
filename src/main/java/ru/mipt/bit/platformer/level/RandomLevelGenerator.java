@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Infrastructure: in-memory level-source adapter implementing the application LevelSource port.
+ * Supplies generated levels instead of persisted levels, with injected randomness.
+ */
 public final class RandomLevelGenerator implements LevelSource {
 
     private final int width;

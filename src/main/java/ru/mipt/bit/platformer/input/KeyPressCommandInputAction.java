@@ -4,7 +4,12 @@ import ru.mipt.bit.platformer.control.Command;
 
 import java.util.Objects;
 
-/** Executes once per press, requiring a release before the next execution. */
+/**
+ * Infrastructure: input adapter implementing InputAction and reading the KeyState port.
+ * Translates a key-press edge into an application Command.
+ *
+ * <p>Executes once per press, requiring a release before the next execution.
+ */
 public final class KeyPressCommandInputAction implements InputAction {
 
     private final KeyState keyState;

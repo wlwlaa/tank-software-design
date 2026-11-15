@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Domain: immutable logical level value object, not a port or adapter.
+ * Shared by the level-source boundary and simulation; contains no filesystem or rendering data.
+ */
 public final class LevelDefinition {
 
     private final int width;

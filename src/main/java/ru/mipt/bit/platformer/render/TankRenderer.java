@@ -9,6 +9,10 @@ import ru.mipt.bit.platformer.model.Tank;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
+/**
+ * Infrastructure: tank presentation component inside the GameView adapter.
+ * Implements the renderer-internal SceneRenderer interface, not a core application port.
+ */
 public class TankRenderer implements SceneRenderer {
 
     private final Tank tank;

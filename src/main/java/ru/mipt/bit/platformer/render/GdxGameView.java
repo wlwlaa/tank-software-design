@@ -9,6 +9,10 @@ import java.util.List;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
+/**
+ * Infrastructure: driven presentation adapter implementing the application GameView output port.
+ * Owns LibGDX frame rendering and graphics-resource cleanup.
+ */
 public class GdxGameView implements GameView {
 
     private final Batch batch;

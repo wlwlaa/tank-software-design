@@ -11,7 +11,12 @@ import ru.mipt.bit.platformer.model.Tank;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-/** Decorates an object's renderer with an optional, moving health bar. */
+/**
+ * Infrastructure: presentation decorator inside the GameView adapter.
+ * Implements SceneRenderer, a renderer-internal interface rather than an application port.
+ *
+ * <p>Decorates an object's renderer with an optional, moving health bar.
+ */
 public final class HealthBarRenderer implements SceneRenderer {
 
     private static final float WIDTH = 64f;

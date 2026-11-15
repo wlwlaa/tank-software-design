@@ -48,9 +48,10 @@ public class WorldListenerTest {
     @Test
     public void immediateHitPublishesBulletAdditionRemovalAndTankDestruction() {
         TankWorld world = new TankWorld(new Field(3, 1, Collections.emptyList()),
-                0, BulletSettings.DEFAULT, 0.4f);
+                100, BulletSettings.DEFAULT, 0.4f);
         Tank shooter = world.addTank(new GridPoint2(0, 0), 0.4f);
         Tank target = world.addTank(new GridPoint2(1, 0), 0.4f);
+        target.takeDamage(100);
         RecordingListener listener = new RecordingListener();
         world.addListener(listener);
 

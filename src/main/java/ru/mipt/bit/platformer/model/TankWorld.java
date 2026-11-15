@@ -8,6 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Domain: world aggregate managing entities, occupancy, projectile collisions and lifetimes.
+ * Publishes events through the outgoing WorldListener port; implements internal domain policies.
+ * Not an infrastructure adapter despite implementing MovementPolicy and Updatable.
+ */
 public final class TankWorld implements MovementPolicy, Updatable {
 
     private final Field field;
@@ -82,7 +87,11 @@ public final class TankWorld implements MovementPolicy, Updatable {
         }
     }
 
-    /** Subscriptions receive existing objects through the same events as later additions. */
+    /**
+     * Subscriptions receive existing objects through the same events as later additions.
+     *
+     * @param listener recipient of the initial snapshot and subsequent object events
+     */
     public void addListener(WorldListener listener) {
         Objects.requireNonNull(listener, "listener");
         if (listeners.contains(listener)) {

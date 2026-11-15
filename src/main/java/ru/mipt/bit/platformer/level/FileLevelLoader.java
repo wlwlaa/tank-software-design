@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Infrastructure: driven filesystem adapter implementing the application LevelSource port.
+ * Reads UTF-8 files and translates their representation into a logical LevelDefinition.
+ */
 public final class FileLevelLoader implements LevelSource {
 
     private final Path path;

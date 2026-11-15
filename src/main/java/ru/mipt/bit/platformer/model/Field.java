@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Domain: field model enforcing bounds and static obstacle rules through MovementPolicy.
+ * Implements a domain policy, not an infrastructure adapter.
+ */
 public class Field implements MovementPolicy {
 
     private final int width;

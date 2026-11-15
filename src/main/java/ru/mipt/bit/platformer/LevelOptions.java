@@ -8,6 +8,10 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.Random;
 
+/**
+ * Infrastructure: command-line input adapter selecting a LevelSource implementation.
+ * Argument syntax and concrete adapter selection belong outside the application core.
+ */
 public final class LevelOptions {
 
     private static final String USAGE = "Usage: [--random WIDTH HEIGHT OBSTACLE_COUNT [SEED] | --file PATH]";

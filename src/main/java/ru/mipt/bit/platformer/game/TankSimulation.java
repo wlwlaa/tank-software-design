@@ -17,7 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/** Assembles and runs the game rules without a graphics context. */
+/**
+ * Application: simulation setup and command-processing use cases coordinating domain entities.
+ * Architecture gap: constructs the concrete KeyboardMovementStrategy input adapter;
+ * controller assembly should move to the composition root for a strict layer boundary.
+ *
+ * <p>Assembles and runs the game rules without a graphics context.
+ */
 public final class TankSimulation implements InputAction, Updatable {
 
     private final TankWorld world;

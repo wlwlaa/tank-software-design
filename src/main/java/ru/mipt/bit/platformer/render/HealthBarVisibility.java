@@ -1,6 +1,11 @@
 package ru.mipt.bit.platformer.render;
 
-/** Shared display setting for existing and newly added tanks. */
+/**
+ * Infrastructure: shared presentation setting, not a domain entity or an existing port adapter.
+ * Architecture gap: ToggleHealthBarsCommand should reach it through an application-owned port.
+ *
+ * <p>Shared display setting for existing and newly added tanks.
+ */
 public final class HealthBarVisibility {
 
     private boolean visible;

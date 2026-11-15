@@ -8,6 +8,10 @@ import ru.mipt.bit.platformer.render.TilePositioner;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
+/**
+ * Infrastructure: tile positioning/interpolation strategy implementing TilePositioner.
+ * Part of the presentation adapter, not a domain movement rule.
+ */
 public class TileMovement implements TilePositioner {
 
     private final TiledMapTileLayer tileLayer;

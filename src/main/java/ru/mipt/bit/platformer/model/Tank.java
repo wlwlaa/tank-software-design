@@ -1,10 +1,18 @@
 package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.model.state.HealthTankStates;
+import ru.mipt.bit.platformer.model.state.TankState;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * Domain entity and State pattern context implementing MovementTarget and ShootingTarget input ports.
+ * Owns health, movement, reload and collision rules; delegates state-dependent behaviour to TankState.
+ * It is a core implementation of domain contracts, not an infrastructure adapter.
+ * Architecture gap: coordinates still expose the framework type GridPoint2.
+ */
 public class Tank implements MovementTarget, ShootingTarget, Obstacle {
 
     public static final int DEFAULT_HEALTH = 100;
@@ -21,8 +29,10 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
     private final GridPoint2 destinationCoordinates;
 
     private Direction direction = Direction.RIGHT;
+    private double stateMovementDuration;
     private double movementTime;
     private double reloadTime;
+    private TankState state;
     private int health;
     private boolean active = true;
 
@@ -37,7 +47,6 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
             throw new IllegalArgumentException("Movement duration must be finite and positive");
         }
         this.movementDuration = movementDuration;
-        movementTime = movementDuration;
         this.movementPolicy = Objects.requireNonNull(movementPolicy);
         if (health < 0 || !Float.isFinite(shotInterval) || shotInterval <= 0f) {
             throw new IllegalArgumentException("Health must be non-negative and shot interval finite and positive");
@@ -46,6 +55,9 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
         this.destroyAction = Objects.requireNonNull(destroyAction);
         this.health = health;
         this.maxHealth = health;
+        state = HealthTankStates.forHealth(health, maxHealth);
+        stateMovementDuration = movementDuration / state.movementSpeedMultiplier();
+        movementTime = stateMovementDuration;
         this.shotInterval = shotInterval;
         coordinates = new GridPoint2(initialCoordinates);
         destinationCoordinates = new GridPoint2(initialCoordinates);
@@ -53,7 +65,7 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
 
     @Override
     public boolean isMoving() {
-        return movementTime < movementDuration;
+        return movementTime < stateMovementDuration;
     }
 
     @Override
@@ -77,8 +89,11 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
         if (!active) {
             return;
         }
-        reloadTime = Math.max(0d, reloadTime - deltaTime);
-        movementTime = Math.min(movementDuration, movementTime + deltaTime);
+        // Reload progress is measured in base-speed seconds.
+        reloadTime = Math.max(0d, reloadTime - deltaTime * state.reloadSpeedMultiplier());
+        // Sum elapsed time before dividing by the state's duration. Multiplying
+        // every small tick by 1/3 can otherwise postpone arrival by one frame.
+        movementTime = Math.min(stateMovementDuration, movementTime + deltaTime);
         if (!isMoving()) {
             coordinates.set(destinationCoordinates);
         }
@@ -92,7 +107,7 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
 
     @Override
     public void shoot() {
-        if (active && reloadTime <= 0f) {
+        if (active && state.canShoot() && reloadTime <= 0f) {
             reloadTime = shotInterval;
             shootAction.accept(this);
         }
@@ -106,6 +121,7 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
             return;
         }
         health -= damage;
+        setState(state.onHealthChanged(health, maxHealth));
         // The assignment defines destruction strictly below zero; zero is still alive.
         if (health < 0) {
             deactivate();
@@ -130,6 +146,34 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
         return maxHealth;
     }
 
+    public TankState getState() {
+        return state;
+    }
+
+    /**
+     * Changes behaviour immediately without resetting movement or reload progress.
+     * Allows field effects to supply new States; an inactive tank stays inactive.
+     *
+     * @param state immutable behaviour with finite, positive speed multipliers
+     */
+    public void setState(TankState state) {
+        Objects.requireNonNull(state, "state");
+        double movementSpeed = state.movementSpeedMultiplier();
+        double reloadSpeed = state.reloadSpeedMultiplier();
+        if (!Double.isFinite(movementSpeed) || movementSpeed <= 0d
+                || !Double.isFinite(reloadSpeed) || reloadSpeed <= 0d) {
+            throw new IllegalArgumentException("State speed multipliers must be finite and positive");
+        }
+        double nextMovementDuration = movementDuration / movementSpeed;
+        if (!Double.isFinite(nextMovementDuration) || nextMovementDuration <= 0d) {
+            throw new IllegalArgumentException("State movement duration must be finite and positive");
+        }
+        movementTime = isMoving() ? movementTime / stateMovementDuration * nextMovementDuration
+                : nextMovementDuration;
+        stateMovementDuration = nextMovementDuration;
+        this.state = state;
+    }
+
     public GridPoint2 getCoordinates() {
         return new GridPoint2(coordinates);
     }
@@ -143,6 +187,6 @@ public class Tank implements MovementTarget, ShootingTarget, Obstacle {
     }
 
     public float getMovementProgress() {
-        return isMoving() ? Math.min(Math.nextDown(1f), (float) (movementTime / movementDuration)) : 1f;
+        return isMoving() ? Math.min(Math.nextDown(1f), (float) (movementTime / stateMovementDuration)) : 1f;
     }
 }

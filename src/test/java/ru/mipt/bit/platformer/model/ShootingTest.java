@@ -189,9 +189,10 @@ public class ShootingTest {
     @Test
     public void destructionDuringUpdateReleasesBothCellsAndDisablesQueuedCommands() {
         TankWorld world = new TankWorld(new Field(5, 2, Collections.emptyList()),
-                0, BulletSettings.DEFAULT, 0.4f);
+                100, BulletSettings.DEFAULT, 0.4f);
         Tank shooter = world.addTank(new GridPoint2(0, 0), 0.4f);
         Tank target = world.addTank(new GridPoint2(2, 1), 0.4f);
+        target.takeDamage(100);
         target.tryMove(Direction.DOWN);
         Command staleShot = new ShootCommand(target);
         Command staleMove = new MoveCommand(target, Direction.RIGHT);

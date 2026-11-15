@@ -6,6 +6,10 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
+/**
+ * Infrastructure: graphics-resource loader/factory inside the presentation adapter.
+ * Loads and resizes a LibGDX tile map; distinct from the logical LevelSource port.
+ */
 public class GroundMapFactory {
 
     public TiledMap create(int width, int height) {
