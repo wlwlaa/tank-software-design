@@ -5,6 +5,10 @@ import ru.mipt.bit.platformer.model.MovementTarget;
 
 import java.util.Objects;
 
+/**
+ * Application: movement use-case command invoking the domain input port MovementTarget.
+ * Does not read devices or implement an infrastructure adapter.
+ */
 public class MoveCommand implements Command {
 
     private final MovementTarget target;

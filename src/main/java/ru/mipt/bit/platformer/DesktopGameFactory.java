@@ -44,6 +44,11 @@ import java.util.function.Supplier;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createSingleLayerMapRenderer;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
+/**
+ * Infrastructure: composition root that wires application services, ports and LibGDX adapters.
+ * Selects LevelSource, KeyState and GameView implementations; Supplier is a factory contract,
+ * not a separate business port.
+ */
 public class DesktopGameFactory implements Supplier<GameSession> {
 
     private static final int AI_TANK_COUNT = 3;

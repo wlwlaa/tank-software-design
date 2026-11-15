@@ -7,6 +7,10 @@ import ru.mipt.bit.platformer.level.LevelDefinition;
 
 import java.io.IOException;
 
+/**
+ * Infrastructure: desktop entry point and composition root for the LWJGL runtime.
+ * Starts the driving adapter TankGame; not a domain entity or a port.
+ */
 public final class GameDesktopLauncher {
 
     private static final int WINDOW_WIDTH = 1280;

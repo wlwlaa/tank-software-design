@@ -10,7 +10,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-/** Keeps graphics in sync with the level, including the initial subscription snapshot. */
+/**
+ * Infrastructure: driven event/presentation adapter implementing the domain WorldListener output port.
+ * Also implements the renderer-internal SceneRenderer contract.
+ *
+ * <p>Keeps graphics in sync with the level, including the initial subscription snapshot.
+ */
 public final class WorldSceneRenderer implements SceneRenderer, WorldListener {
 
     private final TankWorld world;

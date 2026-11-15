@@ -2,6 +2,10 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain entity: projectile movement, lifetime and damage rules.
+ * Implements the internal LevelObject contract; not an infrastructure adapter.
+ */
 public final class Bullet implements LevelObject {
 
     private final TankWorld world;

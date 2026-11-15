@@ -2,6 +2,10 @@ package ru.mipt.bit.platformer.game;
 
 import ru.mipt.bit.platformer.input.InputAction;
 
+/**
+ * Application: frame and shutdown use cases invoked by the driving TankGame adapter.
+ * Coordinates control processing, domain updates and the outgoing GameView port.
+ */
 public class GameSession {
 
     private final InputAction input;

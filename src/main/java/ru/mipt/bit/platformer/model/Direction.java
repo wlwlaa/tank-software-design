@@ -2,6 +2,10 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain: direction value used by movement and shooting; not a port or adapter.
+ * Architecture gap: rendering angles and GridPoint2 expose presentation/framework concerns.
+ */
 public enum Direction {
     UP(0, 1, 90f),
     LEFT(-1, 0, -180f),

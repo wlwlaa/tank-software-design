@@ -9,6 +9,10 @@ import com.badlogic.gdx.math.Rectangle;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
+/**
+ * Infrastructure: map presentation component inside the GameView adapter.
+ * Encapsulates LibGDX map drawing and viewport calculation; not a core port.
+ */
 public class FieldRenderer {
 
     private final TiledMap level;

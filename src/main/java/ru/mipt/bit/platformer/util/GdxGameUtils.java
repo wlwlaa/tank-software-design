@@ -14,6 +14,10 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Infrastructure: LibGDX graphics helpers used by the presentation adapter.
+ * A utility class, not a port or an independent boundary adapter.
+ */
 public final class GdxGameUtils {
 
     private GdxGameUtils() {

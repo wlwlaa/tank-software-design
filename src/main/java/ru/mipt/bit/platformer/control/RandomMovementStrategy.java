@@ -8,6 +8,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Application: in-process AI command-selection policy implementing MovementStrategy.
+ * Random is injected for reproducibility; this strategy is not an external-system adapter.
+ */
 public class RandomMovementStrategy implements MovementStrategy {
 
     private static final Direction[] DIRECTIONS = Direction.values();

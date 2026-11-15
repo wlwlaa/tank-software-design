@@ -12,6 +12,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Domain: placement service enforcing free-cell and non-overlapping spawn rules.
+ * Uses TankWorld directly inside the domain; not an infrastructure adapter.
+ */
 public final class RandomTankGenerator {
 
     private final Random random;

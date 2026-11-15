@@ -2,6 +2,10 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain entity: a stationary obstacle implementing the internal Obstacle contract.
+ * Not a port or infrastructure adapter.
+ */
 public class Tree implements Obstacle {
 
     private final GridPoint2 coordinates;

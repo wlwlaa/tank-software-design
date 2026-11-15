@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Infrastructure: keyboard input adapter translating KeyState readings into application commands.
+ * Uses the KeyState port and implements the internal MovementStrategy contract;
+ * contains no direct LibGDX access.
+ */
 public class KeyboardMovementStrategy implements MovementStrategy {
 
     private final KeyState keyState;

@@ -5,6 +5,10 @@ import com.badlogic.gdx.Gdx;
 
 import java.util.function.Supplier;
 
+/**
+ * Infrastructure: driving LibGDX lifecycle adapter calling GameSession use cases.
+ * Converts framework callbacks and the framework clock into application calls.
+ */
 public class TankGame extends ApplicationAdapter {
 
     private final Supplier<GameSession> sessionFactory;

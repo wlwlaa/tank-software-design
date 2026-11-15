@@ -2,6 +2,10 @@ package ru.mipt.bit.platformer.input;
 
 import ru.mipt.bit.platformer.model.Direction;
 
+/**
+ * Infrastructure: input-adapter configuration mapping device key codes to domain directions.
+ * Not a domain entity or a port.
+ */
 public class DirectionKeyBinding {
 
     private final Direction direction;
